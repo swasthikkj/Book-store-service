@@ -80,7 +80,7 @@ public class UserService implements IUserService {
 	 */
 
 	@Override
-	public UserModel getUserById(String token) {	
+	public UserModel getUserById(String token, Long userId) {	
 		Long decode = tokenUtil.decodeToken(token);
 		Optional<UserModel> isUserPresent = userRepository.findById(decode);
 		if (isUserPresent.isPresent()) {

@@ -2,8 +2,6 @@ package com.bridgelabz.bookstoreuserservice.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,9 +62,9 @@ public class UserController {
 	 * Purpose:get user by id
 	 */
 
-	@GetMapping("/getUserById")
-	public ResponseEntity<Response> getUserById(@RequestHeader String token) {
-		UserModel userModel = userService.getUserById(token);
+	@GetMapping("/getUserById/{userId}")
+	public ResponseEntity<Response> getUserById(@RequestHeader String token, @PathVariable Long userId) {
+		UserModel userModel = userService.getUserById(token, userId);
 		Response response = new Response(200, "USER fetched by id successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -164,7 +162,7 @@ public class UserController {
 	 * Purpose:To activate user
 	 */
 
-	@DeleteMapping("activateUser")
+	@DeleteMapping("activateUser{userId}")
 	public ResponseEntity<Response> activateUser(@PathVariable Long userId) {
 		UserModel userModel = userService.activateUser(userId);
 		Response response = new Response(200, "User activated successfully", userModel);

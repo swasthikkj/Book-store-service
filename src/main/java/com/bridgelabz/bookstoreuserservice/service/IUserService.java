@@ -14,7 +14,7 @@ public interface IUserService {
 	
 	UserModel updateUser(UserDTO userDTO, Long userId, String token);
 		
-	UserModel getUserById(String token);
+	UserModel getUserById(String token, Long userId);
 
 	List<UserModel> getAllUsers(String token);
 	
