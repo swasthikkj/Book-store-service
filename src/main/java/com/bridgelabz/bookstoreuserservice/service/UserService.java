@@ -213,7 +213,7 @@ public class UserService implements IUserService {
 	}
 
 	/**
-	 * Purpose:reset user password
+	 * Purpose:activate user password
 	 */
 
 	@Override
