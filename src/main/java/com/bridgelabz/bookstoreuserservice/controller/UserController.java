@@ -1,6 +1,5 @@
 package com.bridgelabz.bookstoreuserservice.controller;
 
-import java.io.IOException;
 import java.util.List;
 import javax.validation.Valid;
 
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.bridgelabz.bookstoreuserservice.service.IUserService;
 import com.bridgelabz.bookstoreuserservice.dto.UserDTO;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
@@ -51,9 +48,9 @@ public class UserController {
 	 * Purpose:update user
 	 */
 
-	@PutMapping("updateUser")
-	public ResponseEntity<Response> updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable Long id, @RequestHeader String token) {
-		UserModel userModel = userService.updateUser(userDTO, id, token);
+	@PutMapping("updateUser/{userId}")
+	public ResponseEntity<Response> updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable Long userId, @RequestHeader String token) {
+		UserModel userModel = userService.updateUser(userDTO, userId, token);
 		Response response = new Response(200, "User updated successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -79,28 +76,6 @@ public class UserController {
 		Response response = new Response(200, "All users fetched successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);	
 	}
-	
-	/**
-	 * Purpose:trash user
-	 */
-	
-	@GetMapping("/trashUser")
-	public ResponseEntity<Response> trashUser(@RequestHeader String token) {
-		UserModel userModel = userService.trashUser(token);
-		Response response = new Response(200, "User moved to trash successfully", userModel);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
-	
-	/**
-	 * Purpose:restore user
-	 */
-	
-	@GetMapping("/restoreUser")
-	public ResponseEntity<Response> restoreUser(@RequestHeader String token) {
-		UserModel userModel = userService.restoreUser(token);
-		Response response = new Response(200, "User restored successfully", userModel);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-	}
 
 	/**
 	 * Purpose:delete user
@@ -124,57 +99,56 @@ public class UserController {
 	}
 
 	/**
-	 * Purpose:reset user password
+	 * Purpose:resetting forgot password
 	 */
 
-	@PostMapping("/resetPassword")
-	public ResponseEntity<Response> resetPassword(@RequestParam String password, @RequestHeader String token) {
-		UserModel userModel = userService.resetPassword(password, token);
+	@PostMapping("/forgotPassword")
+	public ResponseEntity<Response> forgotPassword(@RequestParam String email) {
+		UserModel userModel = userService.forgotPassword(email);
 		Response response = new Response(200, "User password reset successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	/**
-	 * Purpose:change user password
+	 * Purpose:reset user password
 	 * @Param password
 	 */
 
-	@PutMapping("/changePassword")
-	public ResponseEntity<Response> changePassword(@PathVariable String token, @RequestParam String password, @RequestParam String newPassword) {
-		UserModel userModel = userService.changePassword(token, password, newPassword);
+	@PutMapping("/resetPassword{token}")
+	public ResponseEntity<Response> resetPassword(@PathVariable String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
+		UserModel userModel = userService.resetPassword(token, confirmPassword, newPassword);
 		Response response = new Response(200, "User password reset successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	/**
-	 * Purpose:To set profile pic
-	 * @throws IOException 
+	 * Purpose:generating OTP
 	 */
 
-	@PutMapping("profilePic/{userId}")
-	public ResponseEntity<Response> setProfilePic(@PathVariable Long userId, @RequestParam MultipartFile profilePic) throws IOException {
-		UserModel userModel = userService.setProfilePic(userId, profilePic);
-		Response response = new Response(200, "User profile pic set successfully", userModel);
+	@PutMapping("/sendOTP")
+	public ResponseEntity<Response> sendOTP(@RequestHeader String token) {
+		UserModel userModel = userService.sendOTP(token);
+		Response response = new Response(200, "User password reset successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	/**
-	 * Purpose:To activate user
+	 * Purpose:verifying OTP
 	 */
 
-	@DeleteMapping("activateUser{userId}")
-	public ResponseEntity<Response> activateUser(@PathVariable Long userId) {
-		UserModel userModel = userService.activateUser(userId);
-		Response response = new Response(200, "User activated successfully", userModel);
+	@GetMapping("/verifyOTP{otp}")
+	public ResponseEntity<Response> verifyOTP(@RequestHeader String token, @PathVariable Integer otp) {
+		boolean userModel = userService.verifyOTP(token, otp);
+		Response response = new Response(200, "OTP verified", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-
+	
 	/**
-	 * Purpose:validate user
+	 * Purpose:verifying token
 	 */
 
-	@GetMapping("/validateUser/{token}")
-	public Boolean validateUser(@PathVariable String token) {
-		return userService.validateUser(token);
+	@GetMapping("/verifyToken/{token}")
+	public Boolean verifyToken(@PathVariable String token) {
+		return userService.verifyToken(token);
 	}
 }

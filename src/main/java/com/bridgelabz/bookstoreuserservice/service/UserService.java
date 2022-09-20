@@ -1,15 +1,12 @@
 package com.bridgelabz.bookstoreuserservice.service;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.bridgelabz.bookstoreuserservice.dto.UserDTO;
 import com.bridgelabz.bookstoreuserservice.exception.UserNotFoundException;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
@@ -38,9 +35,7 @@ public class UserService implements IUserService {
 	@Override
 	public UserModel addUser(UserDTO userDTO) {
 		UserModel model = new UserModel(userDTO);
-		model.setCreatedAt(LocalDateTime.now());
-		model.setDeleted(false);
-		model.setActive(false);
+		model.setRegisteredDate(LocalDate.now());
 		userRepository.save(model);
 		String body = "User is added succesfully with userId " + model.getId();
 		String subject = "User Registration Successfull";
@@ -59,12 +54,12 @@ public class UserService implements IUserService {
 		if (isTokenPresent.isPresent()) {
 			Optional<UserModel> isUserPresent = userRepository.findById(userId);
 			if(isUserPresent.isPresent()) {
-				isUserPresent.get().setName(userDTO.getName());
+				isUserPresent.get().setFirstName(userDTO.getFirstName());
+				isUserPresent.get().setLastName(userDTO.getLastName());
 				isUserPresent.get().setEmailId(userDTO.getEmailId());
 				isUserPresent.get().setPassword(userDTO.getPassword());
-				isUserPresent.get().setPhoneNumber(userDTO.getPhoneNumber());
-				isUserPresent.get().setDateOfbirth(userDTO.getDateOfbirth());
-				isUserPresent.get().setUpdatedAt(LocalDateTime.now());
+				isUserPresent.get().setDateOfBirth(userDTO.getDateOfBirth());
+				isUserPresent.get().setUpdatedDate(LocalDate.now());
 				userRepository.save(isUserPresent.get());
 				String body = "User updated successfully with user Id" + isUserPresent.get().getId();
 				String subject = "User updated Successfully";
@@ -109,40 +104,6 @@ public class UserService implements IUserService {
 	}
 
 	/**
-	 * Purpose:trash user
-	 */
-
-	@Override
-	public UserModel trashUser(String token) {
-		Long userId = tokenUtil.decodeToken(token);
-		Optional<UserModel> isUserPresent = userRepository.findById(userId);
-		if(isUserPresent.isPresent()) {
-			isUserPresent.get().setActive(false);
-			isUserPresent.get().setDeleted(true);
-			userRepository.save(isUserPresent.get());
-			return isUserPresent.get();
-		} 
-		throw new UserNotFoundException(400,"User not present");	
-	}
-
-	/**
-	 * Purpose:restore user
-	 */
-
-	@Override
-	public UserModel restoreUser(String token) {
-		Long userId = tokenUtil.decodeToken(token);
-		Optional<UserModel> isUserPresent = userRepository.findById(userId);
-		if(isUserPresent.isPresent()) {
-			isUserPresent.get().setActive(true);
-			isUserPresent.get().setDeleted(false);
-			userRepository.save(isUserPresent.get());
-			return isUserPresent.get();
-		} 
-		throw new UserNotFoundException(400,"User not present");	
-	}
-
-	/**
 	 * Purpose:delete user
 	 */
 
@@ -151,19 +112,21 @@ public class UserService implements IUserService {
 		Long userId = tokenUtil.decodeToken(token);
 		Optional<UserModel> isUserPresent = userRepository.findById(userId);
 		if(isUserPresent.isPresent()) {
-			isUserPresent.get().setActive(false);
-			isUserPresent.get().setDeleted(true);
 			userRepository.delete(isUserPresent.get());
 			return isUserPresent.get();
 		}
 		throw new UserNotFoundException(400,"User not present");
 	}
 
+	/**
+	 * Purpose:login user to generate token
+	 */
+
 	@Override
 	public Response login(String emailId, String password) {
 		Optional<UserModel> isEmailPresent = userRepository.findByEmailId(emailId);
 		if(isEmailPresent.isPresent()) {
-			if(isEmailPresent.get().getPassword().equals(password) && isEmailPresent.get().isActive() == true) {
+			if(isEmailPresent.get().getPassword().equals(password)) {
 				String token = tokenUtil.createToken(isEmailPresent.get().getId());
 				return new Response(400, "login succesfull", token);
 			}
@@ -173,15 +136,15 @@ public class UserService implements IUserService {
 	}
 
 	/**
-	 * Purpose:change user password
+	 * Purpose:reset user password
 	 */
 
 	@Override
-	public UserModel changePassword(String token, String password, String newPassword) {
-		Long decode = tokenUtil.decodeToken(token);
-		Optional<UserModel> isUserPresent = userRepository.findById(decode);
+	public UserModel resetPassword(String token, String newPassword, String confirmPassword) {
+		Long userId = tokenUtil.decodeToken(token);
+		Optional<UserModel> isUserPresent = userRepository.findById(userId);
 		if (isUserPresent.isPresent()) {
-			if (isUserPresent.get().getPassword() == password) {
+			if(newPassword == confirmPassword) {
 				isUserPresent.get().setPassword(passwordEncoder.encode(newPassword));
 				userRepository.save(isUserPresent.get());
 				String body = "User password changed to new password successfully" + isUserPresent.get().getPassword();
@@ -194,55 +157,59 @@ public class UserService implements IUserService {
 	}
 
 	/**
-	 * Purpose:reset user password
+	 * Purpose:resetting forgot password3
 	 */
 
 	@Override
-	public UserModel resetPassword(String password, String token) {
+	public UserModel forgotPassword(String emailId) {
+		Optional<UserModel> isEmailPresent = userRepository.findByEmailId(emailId);
+		if (isEmailPresent.isPresent()) {
+			String token = tokenUtil.createToken(isEmailPresent.get().getId());
+			String url = "Click the link to reset password \n" + "http://localhost:8090/userService/resetPassword" + token;
+			String subject = "Link to reset password";
+			mailService.send(isEmailPresent.get().getEmailId(), subject, url);
+			return isEmailPresent.get();
+		}
+		throw new UserNotFoundException(400, "Token not present");
+	}
+
+	/**
+	 * Purpose:Generating OTP 
+	 */
+
+	@Override
+	public UserModel sendOTP(String token) {
 		Long userId = tokenUtil.decodeToken(token);
 		Optional<UserModel> isUserPresent = userRepository.findById(userId);
-		if (isUserPresent.isPresent()) {
-			isUserPresent.get().setPassword(passwordEncoder.encode(password));
+		if(isUserPresent.isPresent()) {
+			int min = 100000, max = 999999;
+			int random = (int)(Math.random()*(max-min+1)+min);
+			isUserPresent.get().setOtp(random);
 			userRepository.save(isUserPresent.get());
-			String body = "User password reset successfully" + isUserPresent.get().getPassword();
-			String subject = "User password reset done Successfully";
+			String body = isUserPresent.get().getOtp() + "use this otp";
+			String subject = "OTP generated successfully";
 			mailService.send(isUserPresent.get().getEmailId(), subject, body);
 			return isUserPresent.get();
 		}
-		throw new UserNotFoundException(400, "Email not found");
+		throw new UserNotFoundException(400,"OTP is invalid");
 	}
 
 	/**
-	 * Purpose:activate user password
+	 * Purpose:Verifying OTP 
 	 */
 
 	@Override
-	public UserModel activateUser(Long userId) {
-		Optional<UserModel> isUserPresent = userRepository.findById(userId);
-		if (isUserPresent.isPresent()) {
-			isUserPresent.get().setActive(true);
-			userRepository.save(isUserPresent.get());
-			String body = "User activated successfully" + isUserPresent.get().getId();
-			String subject = "User is in active mode";
-			mailService.send(isUserPresent.get().getEmailId(), subject, body);
-			return isUserPresent.get();
-		}
-		throw new UserNotFoundException(400, "User not found");
-	}
-
-	/**
-	 * Purpose:setting profile pic of user
-	 */
-
-	@Override
-	public UserModel setProfilePic(Long userId, MultipartFile profile) throws IOException {
+	public boolean verifyOTP(String token, Integer otp) {
+		Long userId = tokenUtil.decodeToken(token);
 		Optional<UserModel> isUserPresent = userRepository.findById(userId);
 		if(isUserPresent.isPresent()) {
-			isUserPresent.get().setProfilePic(String.valueOf(profile.getBytes()));
-			userRepository.save(isUserPresent.get());
-			return isUserPresent.get();
+			if(isUserPresent.get().getOtp() == otp) {
+				isUserPresent.get().setVerify(true);
+				userRepository.save(isUserPresent.get());
+				return isUserPresent.get().isVerify();
+			}
 		}
-		throw new UserNotFoundException(400, "User not found");
+		throw new UserNotFoundException(400,"OTP is invalid");
 	}
 
 	/**
@@ -250,7 +217,7 @@ public class UserService implements IUserService {
 	 */
 
 	@Override
-	public Boolean validateUser(String token) {
+	public Boolean verifyToken(String token) {
 		Long decode = tokenUtil.decodeToken(token);
 		Optional<UserModel> isTokenPresent = userRepository.findById(decode);
 		if (isTokenPresent.isPresent())

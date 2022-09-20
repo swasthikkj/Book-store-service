@@ -1,9 +1,6 @@
 package com.bridgelabz.bookstoreuserservice.service;
 
-import java.io.IOException;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.bridgelabz.bookstoreuserservice.dto.UserDTO;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
 import com.bridgelabz.bookstoreuserservice.util.Response;
@@ -18,22 +15,18 @@ public interface IUserService {
 
 	List<UserModel> getAllUsers(String token);
 	
-	UserModel trashUser(String token);
-	
-	UserModel restoreUser(String token);
-	
 	UserModel deleteUser(String token);
 	
 	Response login(String emailId, String password);
 
-	UserModel changePassword(String token, String password, String newPassword);
+	UserModel resetPassword(String token, String newPassword, String confirmPassword);
 
-	UserModel resetPassword(String password, String token);
+	UserModel forgotPassword(String emailId);
 
-	Boolean validateUser(String token);
+	Boolean verifyToken(String token);
 
-	UserModel setProfilePic(Long userId, MultipartFile profile) throws IOException;
+	UserModel sendOTP(String token);
 
-	UserModel activateUser(Long userId);
+	boolean verifyOTP(String token, Integer otp);
 
 }

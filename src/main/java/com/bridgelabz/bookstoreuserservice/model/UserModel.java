@@ -1,8 +1,6 @@
 package com.bridgelabz.bookstoreuserservice.model;
 
-import java.time.LocalDateTime;
-
-import javax.persistence.Column;
+import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,29 +19,31 @@ import lombok.NoArgsConstructor;
  */
 
 @Entity
-@Table(name = "BookStore")
+@Table(name = "BookStoreUser")
 @Data
 @NoArgsConstructor
 public class UserModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	private String name;
-	private String emailId;
+	private String firstName; 
+	private String lastName; 
+	private String dateOfBirth;
+	private LocalDate registeredDate;
+	private LocalDate updatedDate;
 	private String password;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
-	private boolean isActive;
-	private boolean isDeleted;
-	private String dateOfbirth;
-	private long phoneNumber;
+	private String emailId;
+	private boolean verify;
+	private int otp;
 	private String profilePic;
+	private LocalDate purchaseDate;
+	private LocalDate expiryDate;
 	
-	public UserModel(UserDTO userServiceDTO) {		
-		this.name = userServiceDTO.getName();
-		this.emailId = userServiceDTO.getEmailId();
-		this.password = userServiceDTO.getPassword();
-		this.dateOfbirth = userServiceDTO.getDateOfbirth();
-		this.phoneNumber = userServiceDTO.getPhoneNumber();
+	public UserModel(UserDTO userDTO) {		
+		this.firstName = userDTO.getFirstName();
+		this.lastName = userDTO.getLastName();
+		this.emailId = userDTO.getEmailId();
+		this.password = userDTO.getPassword();
+		this.dateOfBirth = userDTO.getDateOfBirth();
 	}
 }
