@@ -35,16 +35,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 @Import(SpringDataRestConfiguration.class)
 public class Swagger implements WebMvcConfigurer {
     public static final String AUTHORIZATION_HEADER = "Authorization";
-	/*@Bean
-	   public Docket api() {
-	       return new Docket(DocumentationType.SWAGGER_2)
-	               .select()
-	               .apis(RequestHandlerSelectors.any())
-	               .paths(PathSelectors.any())
-	               .build()
-	               .apiInfo(getApiInfo());
-	   }*/
-
+	
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -74,15 +65,6 @@ public class Swagger implements WebMvcConfigurer {
         authorizationScopes[0] = authorizationScope;
         return Arrays.asList(new SecurityReference(AUTHORIZATION_HEADER, authorizationScopes));
     }
-
-	/*private ApiInfo getApiInfo() {
-	       Contact contact = new Contact("Learner Management System", "http://bridgelabz.com&quot;,
-	               "sunil.patil@bridgelabz.com");
-	       return new ApiInfoBuilder().title("LMS Service Swagger API")
-	               .description("LMS Service Swagger API for Learner Management System").version("0.0.1-SNAPSHOT")
-	               .license("Apache 2.0").licenseUrl("http://www.apache.org/licenses/LICENSE-2.0").contact(contact)
-	               .build();
-	   }*/
 
     private ApiInfo apiInfo() {
         return new ApiInfo("bookstoreuserservice",

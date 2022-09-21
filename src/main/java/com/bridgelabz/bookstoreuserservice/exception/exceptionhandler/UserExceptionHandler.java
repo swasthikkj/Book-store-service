@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.bridgelabz.bookstoreuserservice.exception.UserNotFoundException;
-import com.bridgelabz.bookstoreuserservice.util.Response;
+import com.bridgelabz.bookstoreuserservice.util.UserResponse;
 @ControllerAdvice
 public class UserExceptionHandler {
 	@ExceptionHandler(UserNotFoundException.class)
-	public ResponseEntity<Response> handleId(UserNotFoundException ab) {
-		Response response = new Response();
+	public ResponseEntity<UserResponse> handleId(UserNotFoundException ab) {
+		UserResponse response = new UserResponse();
 		response.setErrorcode(400);
 		response.setMessage(ab.getMessage());
 		return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

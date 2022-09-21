@@ -5,12 +5,12 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Response {
+public class UserResponse {
 	private int errorcode;
 	private String message;
 	private Object token;
 	
-	public Response() {
+	public UserResponse() {
 		
 	}
 }

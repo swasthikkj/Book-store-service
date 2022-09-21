@@ -1,5 +1,6 @@
 package com.bridgelabz.bookstoreuserservice.controller;
 
+import java.io.IOException;
 import java.util.List;
 import javax.validation.Valid;
 
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.bridgelabz.bookstoreuserservice.service.IUserService;
 import com.bridgelabz.bookstoreuserservice.dto.UserDTO;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
-import com.bridgelabz.bookstoreuserservice.util.Response;
+import com.bridgelabz.bookstoreuserservice.util.UserResponse;
 
 /**
  * Purpose:create user service controller
@@ -38,9 +41,9 @@ public class UserController {
 	 */
 
 	@PostMapping("/addUser")
-	public ResponseEntity<Response> addUser(@Valid @RequestBody UserDTO userDTO) {
+	public ResponseEntity<UserResponse> addUser(@Valid @RequestBody UserDTO userDTO) {
 		UserModel userModel = userService.addUser(userDTO);
-		Response response = new Response(200, "user added successfully", userModel);
+		UserResponse response = new UserResponse(200, "user added successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);		
 	}
 
@@ -49,9 +52,9 @@ public class UserController {
 	 */
 
 	@PutMapping("updateUser/{userId}")
-	public ResponseEntity<Response> updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable Long userId, @RequestHeader String token) {
+	public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable Long userId, @RequestHeader String token) {
 		UserModel userModel = userService.updateUser(userDTO, userId, token);
-		Response response = new Response(200, "User updated successfully", userModel);
+		UserResponse response = new UserResponse(200, "User updated successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -60,9 +63,9 @@ public class UserController {
 	 */
 
 	@GetMapping("/getUserById/{userId}")
-	public ResponseEntity<Response> getUserById(@RequestHeader String token, @PathVariable Long userId) {
+	public ResponseEntity<UserResponse> getUserById(@RequestHeader String token, @PathVariable Long userId) {
 		UserModel userModel = userService.getUserById(token, userId);
-		Response response = new Response(200, "USER fetched by id successfully", userModel);
+		UserResponse response = new UserResponse(200, "USER fetched by id successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -71,9 +74,9 @@ public class UserController {
 	 */
 
 	@GetMapping("/getAllUsers")
-	public ResponseEntity<Response> getAllUsers(@RequestHeader String token) {
+	public ResponseEntity<UserResponse> getAllUsers(@RequestHeader String token) {
 		List<UserModel> userModel = userService.getAllUsers(token);
-		Response response = new Response(200, "All users fetched successfully", userModel);
+		UserResponse response = new UserResponse(200, "All users fetched successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);	
 	}
 
@@ -82,9 +85,21 @@ public class UserController {
 	 */
 
 	@DeleteMapping("deleteUser")
-	public ResponseEntity<Response> deleteUser(@RequestHeader String token) {
+	public ResponseEntity<UserResponse> deleteUser(@RequestHeader String token) {
 		UserModel userModel = userService.deleteUser(token);
-		Response response = new Response(200, "User deleted successfully", userModel);
+		UserResponse response = new UserResponse(200, "User deleted successfully", userModel);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	/**
+	 * Purpose:To set profile pic
+	 * @throws IOException 
+	 */
+
+	@PutMapping("profilePic/{id}")
+	public ResponseEntity<UserResponse> setProfilePic(@PathVariable Long id, @RequestParam MultipartFile profilePic) throws IOException {
+		UserResponse userModel = userService.setProfilePic(id, profilePic);
+		UserResponse response = new UserResponse(200, "User profile pic set successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -94,7 +109,7 @@ public class UserController {
 	 */
 
 	@PostMapping("/login")
-	public Response login(@RequestParam String emailId, @RequestParam String password) {
+	public UserResponse login(@RequestParam String emailId, @RequestParam String password) {
 		return userService.login(emailId, password);
 	}
 
@@ -103,9 +118,9 @@ public class UserController {
 	 */
 
 	@PostMapping("/forgotPassword")
-	public ResponseEntity<Response> forgotPassword(@RequestParam String email) {
+	public ResponseEntity<UserResponse> forgotPassword(@RequestParam String email) {
 		UserModel userModel = userService.forgotPassword(email);
-		Response response = new Response(200, "User password reset successfully", userModel);
+		UserResponse response = new UserResponse(200, "User password reset successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -115,9 +130,9 @@ public class UserController {
 	 */
 
 	@PutMapping("/resetPassword{token}")
-	public ResponseEntity<Response> resetPassword(@PathVariable String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
+	public ResponseEntity<UserResponse> resetPassword(@PathVariable String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
 		UserModel userModel = userService.resetPassword(token, confirmPassword, newPassword);
-		Response response = new Response(200, "User password reset successfully", userModel);
+		UserResponse response = new UserResponse(200, "User password reset successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -126,9 +141,9 @@ public class UserController {
 	 */
 
 	@PutMapping("/sendOTP")
-	public ResponseEntity<Response> sendOTP(@RequestHeader String token) {
+	public ResponseEntity<UserResponse> sendOTP(@RequestHeader String token) {
 		UserModel userModel = userService.sendOTP(token);
-		Response response = new Response(200, "User password reset successfully", userModel);
+		UserResponse response = new UserResponse(200, "OTP sent successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -137,9 +152,9 @@ public class UserController {
 	 */
 
 	@GetMapping("/verifyOTP{otp}")
-	public ResponseEntity<Response> verifyOTP(@RequestHeader String token, @PathVariable Integer otp) {
+	public ResponseEntity<UserResponse> verifyOTP(@RequestHeader String token, @PathVariable Integer otp) {
 		boolean userModel = userService.verifyOTP(token, otp);
-		Response response = new Response(200, "OTP verified", userModel);
+		UserResponse response = new UserResponse(200, "OTP verified", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -148,7 +163,9 @@ public class UserController {
 	 */
 
 	@GetMapping("/verifyToken/{token}")
-	public Boolean verifyToken(@PathVariable String token) {
-		return userService.verifyToken(token);
+	public ResponseEntity<UserResponse> verifyToken(@PathVariable String token) {
+		boolean userModel = userService.verifyToken(token);
+		UserResponse response = new UserResponse(200, "Token verified", userModel);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

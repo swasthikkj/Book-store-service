@@ -1,5 +1,6 @@
 package com.bridgelabz.bookstoreuserservice.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -7,11 +8,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.bridgelabz.bookstoreuserservice.dto.UserDTO;
 import com.bridgelabz.bookstoreuserservice.exception.UserNotFoundException;
 import com.bridgelabz.bookstoreuserservice.model.UserModel;
 import com.bridgelabz.bookstoreuserservice.repository.UserRepository;
-import com.bridgelabz.bookstoreuserservice.util.Response;
+import com.bridgelabz.bookstoreuserservice.util.UserResponse;
 import com.bridgelabz.bookstoreuserservice.util.TokenUtil;;
 
 @Service
@@ -117,18 +120,33 @@ public class UserService implements IUserService {
 		}
 		throw new UserNotFoundException(400,"User not present");
 	}
+	
+	/**
+	 * Purpose:setting profile pic of user
+	 */
+
+	@Override
+	public UserResponse setProfilePic(Long userId, MultipartFile profile) throws IOException {
+		Optional<UserModel> isIdPresent = userRepository.findById(userId);
+		if(isIdPresent.isPresent()) {
+			isIdPresent.get().setProfilePic(String.valueOf(profile.getBytes()));
+			userRepository.save(isIdPresent.get());
+			return new UserResponse(400, "Success", isIdPresent.get());
+		}
+		throw new UserNotFoundException(400, "User not found");
+	}
 
 	/**
 	 * Purpose:login user to generate token
 	 */
 
 	@Override
-	public Response login(String emailId, String password) {
+	public UserResponse login(String emailId, String password) {
 		Optional<UserModel> isEmailPresent = userRepository.findByEmailId(emailId);
 		if(isEmailPresent.isPresent()) {
 			if(isEmailPresent.get().getPassword().equals(password)) {
 				String token = tokenUtil.createToken(isEmailPresent.get().getId());
-				return new Response(400, "login succesfull", token);
+				return new UserResponse(400, "login succesfull", token);
 			}
 			throw new UserNotFoundException(400, "Invalid credentials");
 		}
@@ -144,8 +162,8 @@ public class UserService implements IUserService {
 		Long userId = tokenUtil.decodeToken(token);
 		Optional<UserModel> isUserPresent = userRepository.findById(userId);
 		if (isUserPresent.isPresent()) {
-			if(newPassword == confirmPassword) {
-				isUserPresent.get().setPassword(passwordEncoder.encode(newPassword));
+			if(newPassword.equals(confirmPassword)) {
+				isUserPresent.get().setPassword(newPassword);
 				userRepository.save(isUserPresent.get());
 				String body = "User password changed to new password successfully" + isUserPresent.get().getPassword();
 				String subject = "User password changed Successfully";
@@ -213,7 +231,7 @@ public class UserService implements IUserService {
 	}
 
 	/**
-	 * Purpose:validate user
+	 * Purpose:verify token
 	 */
 
 	@Override

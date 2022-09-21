@@ -1,6 +1,8 @@
 package com.bridgelabz.bookstoreuserservice.model;
 
 import java.time.LocalDate;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -35,6 +37,7 @@ public class UserModel {
 	private String emailId;
 	private boolean verify;
 	private int otp;
+	@Column(length = 10000)
 	private String profilePic;
 	private LocalDate purchaseDate;
 	private LocalDate expiryDate;
