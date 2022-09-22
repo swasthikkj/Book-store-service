@@ -163,9 +163,8 @@ public class UserController {
 	 */
 
 	@GetMapping("/verifyToken/{token}")
-	public ResponseEntity<UserResponse> verifyToken(@PathVariable String token) {
-		boolean userModel = userService.verifyToken(token);
-		UserResponse response = new UserResponse(200, "Token verified", userModel);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+	public Boolean verifyToken(@PathVariable String token) {
+		return userService.verifyToken(token);
+		
 	}
 }

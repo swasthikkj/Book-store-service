@@ -27,12 +27,12 @@ public interface IUserService {
 
 	UserModel forgotPassword(String emailId);
 
-	Boolean verifyToken(String token);
-
 	UserModel sendOTP(String token);
 
 	boolean verifyOTP(String token, Integer otp);
 
 	UserResponse setProfilePic(Long userId, MultipartFile profile) throws IOException;
+
+	Boolean verifyToken(String token);
 
 }

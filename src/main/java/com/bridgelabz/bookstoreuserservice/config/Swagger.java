@@ -67,7 +67,7 @@ public class Swagger implements WebMvcConfigurer {
     }
 
     private ApiInfo apiInfo() {
-        return new ApiInfo("bookstoreuserservice",
+        return new ApiInfo("BookStore UserService",
                 "APIs for E.",
                 "1.0",
                 "Terms of service",
