@@ -1,7 +1,5 @@
 package com.bridgelabz.bookstoreuserservice.dto;
 
-import java.time.LocalDate;
-
 import javax.validation.constraints.Pattern;
 
 import com.bridgelabz.bookstoreuserservice.dto.UserDTO;

@@ -35,4 +35,6 @@ public interface IUserService {
 
 	Boolean verifyToken(String token);
 
+	UserResponse validateUserId(Long userId);
+
 }

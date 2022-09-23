@@ -40,7 +40,7 @@ public class UserService implements IUserService {
 		UserModel model = new UserModel(userDTO);
 		model.setRegisteredDate(LocalDate.now());
 		userRepository.save(model);
-		String body = "User is added succesfully with userId " + model.getId();
+		String body = "User is added succesfully with userId " + model.getUserId();
 		String subject = "User Registration Successfull";
 		mailService.send(model.getEmailId(), subject, body);		
 		return model;
@@ -64,7 +64,7 @@ public class UserService implements IUserService {
 				isUserPresent.get().setDateOfBirth(userDTO.getDateOfBirth());
 				isUserPresent.get().setUpdatedDate(LocalDate.now());
 				userRepository.save(isUserPresent.get());
-				String body = "User updated successfully with user Id" + isUserPresent.get().getId();
+				String body = "User updated successfully with user Id" + isUserPresent.get().getUserId();
 				String subject = "User updated Successfully";
 				mailService.send(isUserPresent.get().getEmailId(), subject, body);
 				return isUserPresent.get();
@@ -145,7 +145,7 @@ public class UserService implements IUserService {
 		Optional<UserModel> isEmailPresent = userRepository.findByEmailId(emailId);
 		if(isEmailPresent.isPresent()) {
 			if(isEmailPresent.get().getPassword().equals(password)) {
-				String token = tokenUtil.createToken(isEmailPresent.get().getId());
+				String token = tokenUtil.createToken(isEmailPresent.get().getUserId());
 				return new UserResponse(400, "login succesfull", token);
 			}
 			throw new UserNotFoundException(400, "Invalid credentials");
@@ -182,7 +182,7 @@ public class UserService implements IUserService {
 	public UserModel forgotPassword(String emailId) {
 		Optional<UserModel> isEmailPresent = userRepository.findByEmailId(emailId);
 		if (isEmailPresent.isPresent()) {
-			String token = tokenUtil.createToken(isEmailPresent.get().getId());
+			String token = tokenUtil.createToken(isEmailPresent.get().getUserId());
 			String url = "Click the link to reset password \n" + "http://localhost:8090/userService/resetPassword" + token;
 			String subject = "Link to reset password";
 			mailService.send(isEmailPresent.get().getEmailId(), subject, url);
@@ -227,7 +227,7 @@ public class UserService implements IUserService {
 				return isUserPresent.get().isVerify();
 			}
 		}
-		throw new UserNotFoundException(400,"OTP is invalid");
+		throw new UserNotFoundException(400, "OTP is invalid");
 	}
 
 	/**
@@ -241,5 +241,18 @@ public class UserService implements IUserService {
 		if (isTokenPresent.isPresent())
 			return true;
 		throw new UserNotFoundException(400, "Token not found");
+	}
+	
+	/**
+	 * Purpose:validate user id
+	 */
+	
+	@Override
+	public UserResponse validateUserId(Long userId) {
+		Optional<UserModel> isUserPresent = userRepository.findById(userId);
+		if (isUserPresent.isPresent()) {
+			return new UserResponse(200, "User Validate Successfully",isUserPresent.get());
+		}
+		throw new UserNotFoundException(500, "User Not Found");
 	}
 }

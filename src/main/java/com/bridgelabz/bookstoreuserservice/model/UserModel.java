@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 public class UserModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private long userId;
 	private String firstName; 
 	private String lastName; 
 	private String dateOfBirth;
