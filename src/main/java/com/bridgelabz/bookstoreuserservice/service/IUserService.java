@@ -37,4 +37,6 @@ public interface IUserService {
 
 	UserResponse validateUserId(Long userId);
 
+	UserResponse purchaseSubscription(String token);
+
 }

@@ -2,6 +2,8 @@ package com.bridgelabz.bookstoreuserservice.service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,7 +122,7 @@ public class UserService implements IUserService {
 		}
 		throw new UserNotFoundException(400,"User not present");
 	}
-	
+
 	/**
 	 * Purpose:setting profile pic of user
 	 */
@@ -242,17 +244,35 @@ public class UserService implements IUserService {
 			return true;
 		throw new UserNotFoundException(400, "Token not found");
 	}
-	
+
 	/**
 	 * Purpose:validate user id
 	 */
-	
+
 	@Override
 	public UserResponse validateUserId(Long userId) {
 		Optional<UserModel> isUserPresent = userRepository.findById(userId);
 		if (isUserPresent.isPresent()) {
-			return new UserResponse(200, "User Validate Successfully",isUserPresent.get());
+			return new UserResponse(200, "User Validate Successfully", isUserPresent.get());
 		}
-		throw new UserNotFoundException(500, "User Not Found");
+		throw new UserNotFoundException(400, "User Not Found");
+	}
+
+	@Override
+	public UserResponse purchaseSubscription(String token) {
+		Long userId = tokenUtil.decodeToken(token);
+		Optional<UserModel> isUserPresent = userRepository.findById(userId);
+		if(isUserPresent.isPresent()) {
+			isUserPresent.get().setPurchaseDate(new Date());
+			Date date = new Date();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(date);
+			calendar.add(Calendar.MONTH, 12);
+			Date expireDate = calendar.getTime();
+			isUserPresent.get().setExpiryDate(expireDate);
+			userRepository.save(isUserPresent.get());
+			return new UserResponse(200, "User Validate Successfully", isUserPresent.get());
+		}
+		throw new UserNotFoundException(400, "User Not Found");
 	}
 }

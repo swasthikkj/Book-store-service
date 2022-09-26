@@ -41,7 +41,7 @@ public class UserController {
 	 */
 
 	@PostMapping("/addUser")
-	public ResponseEntity<UserResponse> addUser(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<UserResponse> addUser(@Valid @RequestBody UserDTO userDTO) {
 		UserModel userModel = userService.addUser(userDTO);
 		UserResponse response = new UserResponse(200, "user added successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);		
@@ -52,7 +52,7 @@ public class UserController {
 	 */
 
 	@PutMapping("updateUser/{userId}")
-	public ResponseEntity<UserResponse> updateUser(@RequestBody UserDTO userDTO, @PathVariable Long userId, @RequestHeader String token) {
+	public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserDTO userDTO, @PathVariable Long userId, @RequestHeader String token) {
 		UserModel userModel = userService.updateUser(userDTO, userId, token);
 		UserResponse response = new UserResponse(200, "User updated successfully", userModel);
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -174,5 +174,16 @@ public class UserController {
 	@GetMapping("/validateuser/{userId}")
 	public UserResponse validateUserId(@PathVariable Long userId) {
 		return userService.validateUserId(userId);
+	}
+	
+	/**
+	 * Purpose:verifying OTP
+	 */
+
+	@PutMapping("/purchaseSubscription")
+	public ResponseEntity<UserResponse> purchaseSubscription(@RequestHeader String token) {
+		UserResponse userModel = userService.purchaseSubscription(token);
+		UserResponse response = new UserResponse(200, "Subscription success", userModel);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

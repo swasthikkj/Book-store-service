@@ -1,6 +1,7 @@
 package com.bridgelabz.bookstoreuserservice.model;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,8 +40,8 @@ public class UserModel {
 	private int otp;
 	@Column(length = 10000)
 	private String profilePic;
-	private LocalDate purchaseDate;
-	private LocalDate expiryDate;
+	private Date purchaseDate;
+	private Date expiryDate;
 	
 	public UserModel(UserDTO userDTO) {		
 		this.firstName = userDTO.getFirstName();
