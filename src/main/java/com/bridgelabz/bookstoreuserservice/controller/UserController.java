@@ -129,7 +129,7 @@ public class UserController {
 	 * @Param password
 	 */
 
-	@PutMapping("/resetPassword{token}")
+	@PutMapping("/resetPassword/{token}")
 	public ResponseEntity<UserResponse> resetPassword(@PathVariable String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
 		UserModel userModel = userService.resetPassword(token, confirmPassword, newPassword);
 		UserResponse response = new UserResponse(200, "User password reset successfully", userModel);
@@ -151,7 +151,7 @@ public class UserController {
 	 * Purpose:verifying OTP
 	 */
 
-	@GetMapping("/verifyotp{otp}")
+	@GetMapping("/verifyotp/{otp}")
 	public ResponseEntity<UserResponse> verifyOTP(@RequestHeader String token, @PathVariable Integer otp) {
 		boolean userModel = userService.verifyOTP(token, otp);
 		UserResponse response = new UserResponse(200, "OTP verified", userModel);
