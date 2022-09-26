@@ -177,7 +177,7 @@ public class UserController {
 	}
 	
 	/**
-	 * Purpose:verifying OTP
+	 * Purpose:To purchase subscription
 	 */
 
 	@PutMapping("/purchaseSubscription")

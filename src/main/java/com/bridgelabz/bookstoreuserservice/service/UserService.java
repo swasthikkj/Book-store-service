@@ -257,7 +257,11 @@ public class UserService implements IUserService {
 		}
 		throw new UserNotFoundException(400, "User Not Found");
 	}
-
+	
+	/**
+	 * Purpose:To subscribe
+	 */
+	
 	@Override
 	public UserResponse purchaseSubscription(String token) {
 		Long userId = tokenUtil.decodeToken(token);
